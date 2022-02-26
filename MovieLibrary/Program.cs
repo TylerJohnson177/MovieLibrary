@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Transactions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic.CompilerServices;
+using NLog;
 
 namespace MovieLibrary
 {
@@ -12,6 +16,10 @@ namespace MovieLibrary
     {
         static void Main(string[] args)
         {
+            IServiceCollection serviceCollection = new ServiceCollection();
+            var serviceProvider = serviceCollection.AddLogging(x => x.AddConsole()).BuildServiceProvider();
+            var logger = serviceProvider.GetService<ILoggerFactory>().CreateLogger<Logger>();
+            
             
             string option = "";
             FileManager manager = new FileManager();
@@ -33,7 +41,7 @@ namespace MovieLibrary
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    throw;
+                    logger.LogInformation(e.ToString());
                 }
 
                 
@@ -81,7 +89,7 @@ namespace MovieLibrary
                             catch (Exception e)
                             {
                                 Console.WriteLine(e);
-                                throw;
+                                logger.LogInformation(e.ToString());
                             }
                             
                         } while (listOptions.ToUpper()!= "X");
@@ -91,7 +99,7 @@ namespace MovieLibrary
 
                         List<Movie> newMovies = new List<Movie>();
                         string title = "";
-                        string releaseDate;
+                        string releaseDate = "";
 
                         do
                         {
@@ -105,7 +113,7 @@ namespace MovieLibrary
                             catch (Exception e)
                             {
                                 Console.WriteLine(e);
-                                throw;
+                                logger.LogInformation(e.ToString());
                             }
                             
                             if (title.ToUpper() == "X")
@@ -121,7 +129,7 @@ namespace MovieLibrary
                             catch (Exception e)
                             {
                                 Console.WriteLine(e);
-                                throw;
+                                logger.LogInformation(e.ToString());
                             }
 
                             Console.WriteLine("Enter the Genres (X) to Exit");
@@ -143,7 +151,7 @@ namespace MovieLibrary
                                 catch (Exception e)
                                 {
                                     Console.WriteLine(e);
-                                    throw;
+                                    logger.LogInformation(e.ToString());
                                 }
                             } while (genre.ToUpper() != "X");
                             
