@@ -1,19 +1,18 @@
-﻿using System;
+﻿
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace MovieLibrary
 {
     public class FileManager
     {
-        public List<string> Read()
+        public List<string> ReadMedia(string fileName)
         {
             var file = new List<string>();
             
-            if (File.Exists("movies.csv"))
+            if (File.Exists(fileName))
             {
-                StreamReader fileReader = new StreamReader("movies.csv");
+                StreamReader fileReader = new StreamReader(fileName);
                 string? line = "";
 
                 do
@@ -32,20 +31,33 @@ namespace MovieLibrary
             return file;
         }
 
-        public void Write(List<string> movies)
+        public void WriteMedia(List<string> media, string fileName)
         {
-            StreamWriter writer = new StreamWriter("movies.csv");
-            
-            for (int i = 0; i < movies.Count; i++)
+            StreamWriter writer = new StreamWriter(fileName);
+
+            if (fileName == "movies.csv")
             {
-                writer.WriteLine(movies[i]);
+                writer.WriteLine("id,title,genres");
+            }
+            else if(fileName == "shows.csv")
+            {
+                writer.WriteLine("id,title,season,episode,writers");
+            }
+            else
+            {
+                writer.WriteLine("id,title,format,length,regions");
+            }
+            
+            for (int i = 0; i < media.Count; i++)
+            {
+                writer.WriteLine(media[i]);
             }
             writer.Close();
         }
 
-        public string GetFileAsString()
+        public string GetFileAsString(string fileName)
         {
-            StreamReader fileReader = new StreamReader("movies.csv");
+            StreamReader fileReader = new StreamReader(fileName);
             string file = fileReader.ReadToEnd();
             fileReader.Close();
             return file;

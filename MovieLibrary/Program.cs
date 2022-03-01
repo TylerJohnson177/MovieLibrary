@@ -1,13 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Transactions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic.CompilerServices;
 using NLog;
 
 namespace MovieLibrary
@@ -20,167 +14,67 @@ namespace MovieLibrary
             var serviceProvider = serviceCollection.AddLogging(x => x.AddConsole()).BuildServiceProvider();
             var logger = serviceProvider.GetService<ILoggerFactory>().CreateLogger<Logger>();
             
-            
-            string option = "";
+            InputOutputService service = new InputOutputService();
             FileManager manager = new FileManager();
-            MovieFormatter formatter = new MovieFormatter();
-            List<string> movieList = manager.Read();
+            MediaFormatter formatter = new MediaFormatter();
+            string option;
             
             do
             {
-                Console.WriteLine("Welcome to the Movie Library");
-                Console.WriteLine("Options");
-                Console.WriteLine("(L): List Movies");
-                Console.WriteLine("(A): Add more Movies to the library");
-                Console.WriteLine("(X): Exit");
+                option = service.Startup();
 
-                try
-                {
-                    option = Console.ReadLine();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    logger.LogInformation(e.ToString());
-                }
-
-                
-                switch (option.ToUpper())
+                switch (option)
                 {
                     case "L":
-                        string listOptions = "N";
-                        int page = 0;
-                        
-                        do
+                        string mediaOption = service.MediaOption();
+                        switch (mediaOption)
                         {
-
-                            Console.WriteLine($"Displaying movies {page + 1} Through {(page + 50)}");
-                            Console.WriteLine("Options");
-                            Console.WriteLine("(X) Exit List");
-                            Console.WriteLine("(N) Next Page");
-                            
-                            if (listOptions.ToUpper() == "N")
-                            {
-                                for (int i = 0; i < movieList.Count; i++)
+                            case "M":
+                                List<Movie> movies = formatter.FormatMovieToObject(manager.ReadMedia("movies.csv"));
+                                for (int i = 0; i < movies.Count; i++)
                                 {
-                                    if (i <= page + 49 && i >= page)
-                                    {
-                                        if (movieList[i].Contains(@""""))
-                                        {
-                                            List<string> movie = movieList[i].Split(@"""").ToList();
-                                            Console.WriteLine($"ID: {movie[0]} Title: {movie[1]} Genres: {movie[2]}");
-                                        }
-                                        else
-                                        {
-                                            List<string> movie = movieList[i].Split(",").ToList();
-                                            Console.WriteLine($"ID: {movie[0]} Title: {movie[1]} Genres: {movie[2]}");
-                                        }
-                                        
-                                    }
+                                    Console.WriteLine(movies[i].Display());
                                 }
-                            }
-                            
-                            page += 50;
-                            
-                            try
-                            {
-                                listOptions = Console.ReadLine();
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e);
-                                logger.LogInformation(e.ToString());
-                            }
-                            
-                        } while (listOptions.ToUpper()!= "X");
-                        break;
-                       
-                    case "A":
-
-                        List<Movie> newMovies = new List<Movie>();
-                        string title = "";
-                        string releaseDate = "";
-
-                        do
-                        {
-                            List<string> Genres = new List<string>();
-                            
-                            Console.WriteLine("Enter the Movie Title or (X) to Exit");
-                            try
-                            {
-                                title = Console.ReadLine();
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e);
-                                logger.LogInformation(e.ToString());
-                            }
-                            
-                            if (title.ToUpper() == "X")
-                            {
                                 break;
-                            }
-
-                            Console.WriteLine("Enter the Release Date");
-                            try
-                            {
-                                 releaseDate = Console.ReadLine();
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine(e);
-                                logger.LogInformation(e.ToString());
-                            }
-
-                            Console.WriteLine("Enter the Genres (X) to Exit");
-
-                            string genre = "";
-
-                            do
-                            {
-                                try
+                            case "S":
+                                List<Show> shows = formatter.FormatShowToObject(manager.ReadMedia("shows.csv"));
+                                for (int i = 0; i < shows.Count; i++)
                                 {
-                                    genre = Console.ReadLine();
-
-                                    if (genre.ToUpper() == "X")
-                                    {
-                                        break;
-                                    }
-                                    Genres.Add(genre);
+                                    Console.WriteLine(shows[i].Display());
                                 }
-                                catch (Exception e)
+                                break;
+                            case "V":
+                                List<Video> videos = formatter.FormatVideoToObject((manager.ReadMedia("videos.csv")));
+                                for (int i = 0; i < videos.Count; i++)
                                 {
-                                    Console.WriteLine(e);
-                                    logger.LogInformation(e.ToString());
+                                    Console.WriteLine(videos[i].Display());
                                 }
-                            } while (genre.ToUpper() != "X");
-                            
-                            newMovies.Add(new Movie(title, releaseDate, Genres, int.Parse((movieList[movieList.Count - 1]).Split(",")[0]) + 1 + newMovies.Count));
-                            
-                        } while (title.ToUpper() != "X");
-
-                        List<string> AddedMovies = formatter.FormatToString(newMovies);
-
-                        bool isFound = false;
-                        
-                        for (int i = 0; i < AddedMovies.Count; i++)
-                        {
-                            if (manager.GetFileAsString().Contains(AddedMovies[i].Split(",")[1]))
-                            {
-                                Console.WriteLine($"The Movie: {AddedMovies[i].Split(",")[1]} Already Exists in the library");
-                            }
-                            else
-                            {
-                                movieList.Add(AddedMovies[i]);
-                            }
+                                break;
                         }
-                        manager.Write(movieList);
                         break;
+                    case "A":
+                        string addOption = service.AddOption();
+                        switch (addOption)
+                        {
+                            case "M":
+                                List<string> movies = formatter.FormatMovieToString(service.AddMovie(formatter.FormatMovieToObject(manager.ReadMedia("movies.csv"))));
+                                manager.WriteMedia(movies, "movies.csv");
+                                break;
+                            case "S":
+                                List<string> shows = formatter.FormatShowToString(service.AddShow(formatter.FormatShowToObject(manager.ReadMedia("shows.csv"))));
+                                manager.WriteMedia(shows, "shows.csv");
+                                break;
+                            case "V":
+                                List<string> videos = formatter.FormatVideoToString(service.AddVideo(formatter.FormatVideoToObject(manager.ReadMedia("videos.csv"))));
+                                manager.WriteMedia(videos, "videos.csv");
+                                break;
+                        }
                         
-                }   
-                
-            } while (option.ToUpper() != "X");
-            
+                        break;
+                }
+
+            } while ( option != "X");
+
         }
     }
 }
