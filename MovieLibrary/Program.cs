@@ -15,7 +15,7 @@ namespace MovieLibrary
             var logger = serviceProvider.GetService<ILoggerFactory>().CreateLogger<Logger>();
             
             InputOutputService service = new InputOutputService();
-            FileManager manager = new FileManager();
+            Manager manager = new JsonManager();
             MediaFormatter formatter = new MediaFormatter();
             string option;
             
@@ -30,21 +30,21 @@ namespace MovieLibrary
                         switch (mediaOption)
                         {
                             case "M":
-                                List<Movie> movies = formatter.FormatMovieToObject(manager.ReadMedia("movies.csv"));
+                                List<Movie> movies = formatter.FormatMovieToObject(manager.ReadMedia("movies"));
                                 for (int i = 0; i < movies.Count; i++)
                                 {
                                     Console.WriteLine(movies[i].Display());
                                 }
                                 break;
                             case "S":
-                                List<Show> shows = formatter.FormatShowToObject(manager.ReadMedia("shows.csv"));
+                                List<Show> shows = formatter.FormatShowToObject(manager.ReadMedia("shows"));
                                 for (int i = 0; i < shows.Count; i++)
                                 {
                                     Console.WriteLine(shows[i].Display());
                                 }
                                 break;
                             case "V":
-                                List<Video> videos = formatter.FormatVideoToObject((manager.ReadMedia("videos.csv")));
+                                List<Video> videos = formatter.FormatVideoToObject((manager.ReadMedia("videos")));
                                 for (int i = 0; i < videos.Count; i++)
                                 {
                                     Console.WriteLine(videos[i].Display());
@@ -57,16 +57,16 @@ namespace MovieLibrary
                         switch (addOption)
                         {
                             case "M":
-                                List<string> movies = formatter.FormatMovieToString(service.AddMovie(formatter.FormatMovieToObject(manager.ReadMedia("movies.csv"))));
-                                manager.WriteMedia(movies, "movies.csv");
+                                List<string> movies = formatter.FormatMovieToString(service.AddMovie(formatter.FormatMovieToObject(manager.ReadMedia("movies"))));
+                                manager.WriteMedia(movies, "movies");
                                 break;
                             case "S":
-                                List<string> shows = formatter.FormatShowToString(service.AddShow(formatter.FormatShowToObject(manager.ReadMedia("shows.csv"))));
-                                manager.WriteMedia(shows, "shows.csv");
+                                List<string> shows = formatter.FormatShowToString(service.AddShow(formatter.FormatShowToObject(manager.ReadMedia("shows"))));
+                                manager.WriteMedia(shows, "shows");
                                 break;
                             case "V":
-                                List<string> videos = formatter.FormatVideoToString(service.AddVideo(formatter.FormatVideoToObject(manager.ReadMedia("videos.csv"))));
-                                manager.WriteMedia(videos, "videos.csv");
+                                List<string> videos = formatter.FormatVideoToString(service.AddVideo(formatter.FormatVideoToObject(manager.ReadMedia("videos"))));
+                                manager.WriteMedia(videos, "videos");
                                 break;
                         }
                         

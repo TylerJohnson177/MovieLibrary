@@ -4,10 +4,13 @@ using System.IO;
 
 namespace MovieLibrary
 {
-    public class FileManager
+    public class FileManager : Manager
     {
-        public List<string> ReadMedia(string fileName)
+        MediaFormatter formatter = new MediaFormatter();
+        public List<string> ReadMedia(string name)
         {
+            string fileName = name + ".csv";
+            
             var file = new List<string>();
             
             if (File.Exists(fileName))
@@ -31,8 +34,10 @@ namespace MovieLibrary
             return file;
         }
 
-        public void WriteMedia(List<string> media, string fileName)
+        public void WriteMedia(List<string> media, string name)
         {
+            string fileName = name + ".csv";
+            
             StreamWriter writer = new StreamWriter(fileName);
 
             if (fileName == "movies.csv")
@@ -53,14 +58,6 @@ namespace MovieLibrary
                 writer.WriteLine(media[i]);
             }
             writer.Close();
-        }
-
-        public string GetFileAsString(string fileName)
-        {
-            StreamReader fileReader = new StreamReader(fileName);
-            string file = fileReader.ReadToEnd();
-            fileReader.Close();
-            return file;
         }
         
     }

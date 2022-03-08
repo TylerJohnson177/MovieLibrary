@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace MovieLibrary
 {
@@ -125,7 +126,7 @@ namespace MovieLibrary
         {
             List <Movie> movies = new List<Movie>();
 
-            for (int i = 1; i < file.Count; i++)
+            for (int i = 0; i < file.Count; i++)
             {
                 if (file[i].Contains(@""""))
                 {
@@ -134,14 +135,15 @@ namespace MovieLibrary
                     try
                     {
                         movie.id = int.Parse(line[0].Split(",")[0]);
+                        movie.title = line[1];
+                        movie.genres = line[2].Split("|");
+                        movies.Add(movie);
                     }
-                    catch(Exception e)
+                    catch(Exception)
                     {
-                        Console.WriteLine(e.ToString());
+                        
                     }
-                    movie.title = line[1];
-                    movie.genres = line[2].Split("|");
-                    movies.Add(movie);
+                   
                 }
                 else
                 {
@@ -150,14 +152,14 @@ namespace MovieLibrary
                     try
                     {
                         movie.id = int.Parse(line[0]);
+                        movie.title = line[1];
+                        movie.genres = line[2].Split("|");
+                        movies.Add(movie);
                     }
-                    catch(Exception e)
+                    catch(Exception)
                     {
-                        Console.WriteLine(e.ToString());
+                       
                     }
-                    movie.title = line[1];
-                    movie.genres = line[2].Split("|");
-                    movies.Add(movie);
                 }
             }
 
@@ -168,7 +170,7 @@ namespace MovieLibrary
         {
             List <Show> shows = new List<Show>();
 
-            for (int i = 1; i < file.Count; i++)
+            for (int i = 0; i < file.Count; i++)
             {
                 if (file[i].Contains(@""""))
                 {
@@ -177,35 +179,38 @@ namespace MovieLibrary
                     try
                     {
                         show.id = int.Parse(line[0].Split(",")[0]);
+                        show.title = line[1];
+                        show.SeasonNum = int.Parse(line[2]);
+                        show.EpisodeNum = int.Parse(line[3]);
+                        show.Writers = line[4].Split("|");
+                        shows.Add(show);
                     }
-                    catch(Exception e)
+                    catch (Exception)
                     {
-                        Console.WriteLine(e.ToString());
+                        
                     }
-                    show.title = line[1];
-                    show.SeasonNum = int.Parse(line[2]);
-                    show.EpisodeNum = int.Parse(line[3]);
-                    show.Writers = line[4].Split("|");
-                    shows.Add(show);
+                    
+                    
                 }
                 else
                 {
                     string[] line = file[i].Split(",");
                     Show show = new Show();
-                    show.title = line[1];
                     try
                     {
                         show.id = int.Parse(line[0]);
                         show.SeasonNum = int.Parse(line[2]);
                         show.EpisodeNum = int.Parse(line[3]);
+                        show.Writers = line[4].Split("|");
+                        show.title = line[1];
+                        shows.Add(show);
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
-                        Console.WriteLine(e);
-                        
+
                     }
-                    show.Writers = line[4].Split("|");
-                    shows.Add(show);
+                    
+                    
                 }
                 
             }
@@ -215,64 +220,69 @@ namespace MovieLibrary
         public List<Video> FormatVideoToObject(List<string> file)
         {
             List <Video> videos = new List<Video>();
-
-            for (int i = 1; i < file.Count; i++)
+            for (int i = 0; i < file.Count; i++)
             {
                 if (file[i].Contains(@""""))
                 {
+                    List<int> region = new List<int>();
                     string[] line = file[i].Split(@"""");
                     Video video = new Video();
                     try
                     {
                         video.id = int.Parse(line[0].Split(",")[0]);
+                        video.title = line[1];
+                        video.format = line[2];
                     }
-                    catch(Exception e)
+                    catch (Exception)
                     {
-                        Console.WriteLine(e.ToString());
+                        
                     }
-                    video.title = line[1];
-                    video.format = line[2];
+                    
+
                     try
                     {
-                        video.length = int.Parse(line[3]);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-                    List<int> region = new List<int>();
-                   
-                    for (int j = 0; j < line[4].Split("|").Length; j++)
-                    {
-                        region.Add(int.Parse(line[4].Split("|")[j]));
-                    }
+                        for (int j = 0; j < line[4].Split("|").Length; j++)
+                        {
+                            region.Add(int.Parse(line[4].Split("|")[j]));
+                        }
 
-                    video.regions = region.ToArray();
-                    videos.Add(video);
+                        video.length = int.Parse(line[3]);
+                        video.regions = region.ToArray();
+                        videos.Add(video);
+                    }
+                    catch (Exception)
+                    {
+                        
+                    }
+                    
+                    
                 }
                 else
                 {
                     string[] line = file[i].Split(",");
                     Video video = new Video();
-                    video.title = line[1];
-                    video.format = line[2];
+                    List<int> region = new List<int>();
+
                     try
                     {
+                        for (int j = 0; j < line[4].Split("|").Length; j++)
+                        {
+                            region.Add(int.Parse(line[4].Split("|")[j]));
+                        }
+
                         video.id = int.Parse(line[0]);
                         video.length = int.Parse(line[3]);
+                        video.title = line[1];
+                        video.format = line[2];
+                        video.regions = region.ToArray();
+                        videos.Add(video);
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
-                        Console.WriteLine(e);
+                        
                     }
-                    List<int> region = new List<int>();
-                   
-                    for (int j = 0; j < line[4].Split("|").Length; j++)
-                   {
-                       region.Add(int.Parse(line[4].Split("|")[j]));
-                   }
-                    video.regions = region.ToArray();
-                    videos.Add(video);
+                    
+                    
                 }
             }
             return videos;
