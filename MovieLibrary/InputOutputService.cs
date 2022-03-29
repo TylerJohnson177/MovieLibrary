@@ -11,6 +11,7 @@ namespace MovieLibrary
             Console.WriteLine("Options");
             Console.WriteLine("(L): List Media");
             Console.WriteLine("(A): Add Media to the library");
+            Console.WriteLine("(S): Search Media");
             Console.WriteLine("(X): Exit Program");
             string option = Console.ReadLine().ToUpper();
             return option;
@@ -26,6 +27,13 @@ namespace MovieLibrary
             string option = Console.ReadLine().ToUpper();
             return option;
 
+        }
+
+        public string SearchOption()
+        {
+            Console.WriteLine("Enter a string to search");
+            string searchString = Console.ReadLine();
+            return searchString;
         }
 
         public string AddOption()

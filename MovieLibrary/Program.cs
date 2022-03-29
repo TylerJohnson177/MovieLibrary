@@ -10,13 +10,13 @@ namespace MovieLibrary
     {
         static void Main(string[] args)
         {
-            IServiceCollection serviceCollection = new ServiceCollection();
-            var serviceProvider = serviceCollection.AddLogging(x => x.AddConsole()).BuildServiceProvider();
-            var logger = serviceProvider.GetService<ILoggerFactory>().CreateLogger<Logger>();
+            Dependency dep = new Dependency();
+
+            InputOutputService service = dep.GetInputOutputService();
+            Manager manager = dep.GetManager();
+            MediaFormatter formatter = dep.GetFormatter();
+            Search mediaSearch = dep.getSearch();
             
-            InputOutputService service = new InputOutputService();
-            Manager manager = new JsonManager();
-            MediaFormatter formatter = new MediaFormatter();
             string option;
             
             do
@@ -69,7 +69,55 @@ namespace MovieLibrary
                                 manager.WriteMedia(videos, "videos");
                                 break;
                         }
+                        break;
+                    case "S":
+                        string searchString = service.SearchOption().ToUpper();
+                        Console.WriteLine();
                         
+                        List<Movie> movies1 =
+                            mediaSearch.SearchMovies(formatter.FormatMovieToObject(manager.ReadMedia("movies")),
+                                searchString);
+                        if (movies1.Count > 0)
+                        {
+                            Console.WriteLine($"Movies: ({movies1.Count} results found)");
+                            for (int i = 0; i < movies1.Count; i++)
+                            {
+                                Console.WriteLine(movies1[i].Display());
+                            }
+                            Console.WriteLine();
+                        }
+                        
+                        List<Show> shows1 =
+                            mediaSearch.SearchShows(formatter.FormatShowToObject(manager.ReadMedia("movies")),
+                                searchString);
+                        if (shows1.Count > 0)
+                        {
+                            Console.WriteLine($"Shows: ({shows1.Count} results found)");
+                            for (int i = 0; i < shows1.Count; i++)
+                            {
+                                Console.WriteLine(shows1[i].Display());
+                            }
+                            Console.WriteLine();
+                        }
+                        
+                        List<Video> videos1 =
+                            mediaSearch.SearchVideos(formatter.FormatVideoToObject((manager.ReadMedia("videos"))),
+                                searchString);
+                        if (videos1.Count > 0)
+                        {
+                            Console.WriteLine($"Videos: ({videos1.Count} results found)");
+                            for (int i = 0; i < videos1.Count; i++)
+                            {
+                                Console.WriteLine(videos1[i].Display());
+                            }
+                            Console.WriteLine();
+                        }
+
+                        if (videos1.Count == 0 && movies1.Count == 0 && shows1.Count == 0)
+                        {
+                            Console.WriteLine("No results found");
+                            Console.WriteLine();
+                        }
                         break;
                 }
 
